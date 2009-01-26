@@ -7,7 +7,9 @@ test() ->
   test(ibrowse_lib, url_encode, percent_unit:form_urlencoded_test_cases()),
   test(mochiweb_util, quote_plus, percent_unit:form_urlencoded_test_cases()),
   test(oauth_uri, encode, percent_unit:rfc3986_test_cases()),
-  test(yaws_api, url_encode, percent_unit:form_urlencoded_test_cases()).
+  test(yaws_api, url_encode, percent_unit:form_urlencoded_test_cases()),
+  test(percent, url_encode, percent_unit:form_urlencoded_test_cases()),
+  test(percent, uri_encode, percent_unit:form_urlencoded_test_cases()).
 
 test(M, F, TestCases) ->
   statistics(wall_clock),
