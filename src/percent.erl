@@ -8,7 +8,7 @@
 %%
 
 url_encode(Str) when list(Str) ->
-  url_encode(lists:reverse(Str), []).
+  url_encode(lists:reverse(Str, []), []).
 
 url_encode([X | T], Acc) when
 	X >= $0, X =< $9;
@@ -30,7 +30,7 @@ url_encode([], Acc) ->
 %%
 
 uri_encode(Str) when list(Str) ->
-  uri_encode(lists:reverse(Str), []).
+  uri_encode(lists:reverse(Str, []), []).
 
 uri_encode([X | T], Acc) when
 	X >= $0, X =< $9;
@@ -61,11 +61,13 @@ url_decode([$%, A, B | T], Acc) ->
 url_decode([X | T], Acc) ->
   url_decode(T, [X | Acc]);
 url_decode([], Acc) ->
-  lists:reverse(Acc).
+  lists:reverse(Acc, []).
 
 %%
 %% Helper functions.
 %%
+
+-compile({inline, [{hexchr, 1}, {hexchr_decode, 1}]}).
 
 hexchr(N) when N < 10 ->
   N + $0;
