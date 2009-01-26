@@ -10,20 +10,20 @@
 url_encode(Str) when list(Str) ->
   url_encode(lists:reverse(Str, []), []).
 
-url_encode([X | T], Acc) when
-	X >= $0, X =< $9;
-	X >= $a, X =< $z;
-	X >= $A, X =< $Z;
-	X == $-;
-	X == $_;
-	X == $. ->
+url_encode([X | T], Acc)
+  when  X >= $0, X =< $9;
+        X >= $a, X =< $z;
+        X >= $A, X =< $Z;
+        X == $-;
+        X == $_;
+        X == $. ->
   url_encode(T, [X | Acc]);
 url_encode([32 | T], Acc) ->
   url_encode(T, [$+ | Acc]);
 url_encode([X | T], Acc) ->
-  url_encode(T, [$%, hexchr(X bsr 4), hexchr(X band 16#0f) | Acc]);
-url_encode([], Acc) ->
-  Acc.
+  NewAcc = [$%, hexchr(X bsr 4), hexchr(X band 16#0f) | Acc],
+  url_encode(T, NewAcc);
+url_encode([], Acc) -> Acc.
 
 %%
 %% Percent encoding as defined by RFC 3986 (http://tools.ietf.org/html/rfc3986).
@@ -32,19 +32,19 @@ url_encode([], Acc) ->
 uri_encode(Str) when list(Str) ->
   uri_encode(lists:reverse(Str, []), []).
 
-uri_encode([X | T], Acc) when
-	X >= $0, X =< $9;
-	X >= $a, X =< $z;
-	X >= $A, X =< $Z;
-	X == $-;
-	X == $_;
-	X == $.;
-	X == $~ ->
+uri_encode([X | T], Acc)
+  when  X >= $0, X =< $9;
+        X >= $a, X =< $z;
+        X >= $A, X =< $Z;
+        X == $-;
+        X == $_;
+        X == $.;
+        X == $~ ->
   uri_encode(T, [X | Acc]);
 uri_encode([X | T], Acc) ->
-  uri_encode(T, [$%, hexchr(X bsr 4), hexchr(X band 16#0f) | Acc]);
-uri_encode([], Acc) ->
-  Acc.
+  NewAcc = [$%, hexchr(X bsr 4), hexchr(X band 16#0f) | Acc],
+  url_encode(T, NewAcc);
+uri_encode([], Acc) -> Acc.
 
 %%
 %% Percent decoding.
@@ -57,7 +57,8 @@ uri_decode(Str) when is_list(Str) ->
   url_decode(Str, []).
 
 url_decode([$%, A, B | T], Acc) ->
-  url_decode(T, [(hexchr_decode(A) bsl 4) + hexchr_decode(B) | Acc]);
+  Char = (hexchr_decode(A) bsl 4) + hexchr_decode(B),
+  url_decode(T, [Char | Acc]);
 url_decode([X | T], Acc) ->
   url_decode(T, [X | Acc]);
 url_decode([], Acc) ->
@@ -69,14 +70,9 @@ url_decode([], Acc) ->
 
 -compile({inline, [{hexchr, 1}, {hexchr_decode, 1}]}).
 
-hexchr(N) when N < 10 ->
-  N + $0;
-hexchr(N) -> 
-  N + ($A - 10).
+hexchr(N) when N < 10 -> N + $0;
+hexchr(N)             -> N + ($A - 10).
 
-hexchr_decode(C) when C >= $a ->
-  C - ($a + 10);
-hexchr_decode(C) when C >= $A ->
-  C - ($A + 10);
-hexchr_decode(C) ->
-  C - $0.
+hexchr_decode(C) when C >= $a -> C - ($a + 10);
+hexchr_decode(C) when C >= $A -> C - ($A + 10);
+hexchr_decode(C)              -> C - $0.
