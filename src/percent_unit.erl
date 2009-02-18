@@ -25,6 +25,9 @@ test(M, F, {Out, In}) ->
       end
   end.
 
+test_decode() ->
+  lists:foreach(fun({In, Out}) -> Out = percent:uri_decode(In) end, test_cases([])).
+
 downcased_hex(Str) when is_list(Str) ->
   [downcased_hex(Chr) || Chr <- Str];
 downcased_hex(Chr) when Chr >= $A, Chr =< $F ->
